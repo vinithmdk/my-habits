@@ -9,11 +9,7 @@
   <title>My Habits</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet" />
   <style>
-    :root {
-      --bg:#0f0f14;--surface:#1a1a24;--surface2:#22222f;--border:#2e2e3e;
-      --accent:#7c6ef2;--accent2:#f2716e;--accent3:#6ef2c2;--text:#e8e8f0;
-      --muted:#6b6b80;--success:#4ade80;--warning:#f2c46e;--radius:18px;
-    }
+    :root{--bg:#0f0f14;--surface:#1a1a24;--surface2:#22222f;--border:#2e2e3e;--accent:#7c6ef2;--accent2:#f2716e;--accent3:#6ef2c2;--text:#e8e8f0;--muted:#6b6b80;--success:#4ade80;--warning:#f2c46e;--radius:18px}
     *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
     body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;max-width:430px;margin:0 auto;overflow-x:hidden;padding-bottom:90px}
 
@@ -27,7 +23,7 @@
     .step-text strong{font-size:14px;font-weight:600;display:block;margin-bottom:4px}
     .step-text span{font-size:12px;color:var(--muted);line-height:1.7}
     .step-text a{color:var(--accent);text-decoration:none}
-    .code-box{background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:14px;font-family:'DM Mono',monospace;font-size:11px;color:#a0a0b8;white-space:pre;overflow-x:auto;line-height:1.7;max-height:200px;overflow-y:auto;margin-top:12px}
+    .code-box{background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:14px;font-family:'DM Mono',monospace;font-size:11px;color:#a0a0b8;white-space:pre;overflow-x:auto;line-height:1.7;max-height:180px;overflow-y:auto;margin-top:10px}
     .copy-btn{width:100%;margin-top:8px;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--accent);font-size:13px;padding:10px;cursor:pointer;font-family:'Sora',sans-serif}
     .setup-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;margin-top:20px}
     .setup-input{width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:14px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;padding:14px 16px;outline:none;transition:border-color .2s}
@@ -35,7 +31,7 @@
     .setup-input::placeholder{color:var(--muted)}
     .btn-connect{width:100%;margin-top:12px;background:var(--accent);border:none;border-radius:14px;color:#fff;font-family:'Sora',sans-serif;font-size:15px;font-weight:600;padding:16px;cursor:pointer;transition:opacity .2s}
     .btn-connect:disabled{opacity:.4}
-    .warn-box{background:color-mix(in srgb,var(--warning) 10%,var(--surface));border:1px solid color-mix(in srgb,var(--warning) 30%,var(--border));border-radius:12px;padding:12px 14px;font-size:12px;color:var(--warning);line-height:1.7;margin-top:12px}
+    .warn-box{background:color-mix(in srgb,var(--success) 10%,var(--surface));border:1px solid color-mix(in srgb,var(--success) 30%,var(--border));border-radius:12px;padding:12px 14px;font-size:12px;color:var(--success);line-height:1.7;margin-top:12px}
 
     /* SYNC BAR */
     .sync-bar{display:flex;align-items:center;gap:8px;padding:8px 16px;margin:0 24px 16px;background:var(--surface);border:1px solid var(--border);border-radius:99px;font-size:12px;color:var(--muted);font-family:'DM Mono',monospace}
@@ -44,8 +40,7 @@
     .sync-dot.syncing{background:var(--warning);animation:pulse 1s infinite}
     .sync-dot.error{background:var(--accent2)}
     @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-    .sync-text{flex:1}
-    .sync-btn{background:none;border:none;color:var(--accent);font-size:12px;cursor:pointer;font-family:'DM Mono',monospace;padding:2px 6px}
+    .sync-text{flex:1}.sync-btn{background:none;border:none;color:var(--accent);font-size:12px;cursor:pointer;font-family:'DM Mono',monospace;padding:2px 6px}
 
     /* TOPBAR */
     .topbar{padding:48px 24px 16px;display:flex;justify-content:space-between;align-items:flex-start}
@@ -56,12 +51,10 @@
 
     /* STREAK */
     .streak-bar{margin:0 24px 24px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;display:flex;gap:16px;align-items:center}
-    .streak-icon{font-size:28px}
-    .streak-info .label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+    .streak-icon{font-size:28px}.streak-info .label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
     .streak-info .val{font-size:22px;font-weight:700;color:var(--accent)}
     .streak-divider{width:1px;background:var(--border);height:36px}
-    .progress-wrap{flex:1}
-    .progress-label{font-size:11px;color:var(--muted);margin-bottom:6px;display:flex;justify-content:space-between}
+    .progress-wrap{flex:1}.progress-label{font-size:11px;color:var(--muted);margin-bottom:6px;display:flex;justify-content:space-between}
     .progress-track{background:var(--surface2);border-radius:99px;height:8px;overflow:hidden}
     .progress-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--accent),var(--accent3));transition:width .6s cubic-bezier(.4,0,.2,1)}
 
@@ -73,8 +66,7 @@
     .habit-card.done{background:color-mix(in srgb,var(--color,var(--accent)) 8%,var(--surface));border-color:color-mix(in srgb,var(--color,var(--accent)) 30%,var(--border))}
     .habit-card:active{transform:scale(.97)}
     .habit-emoji{font-size:26px;min-width:36px;text-align:center}
-    .habit-info{flex:1;min-width:0}
-    .habit-name{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .habit-info{flex:1;min-width:0}.habit-name{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .habit-meta{font-size:12px;color:var(--muted);margin-top:2px;font-family:'DM Mono',monospace}
     .habit-streak-badge{font-size:11px;font-family:'DM Mono',monospace;background:color-mix(in srgb,var(--color,var(--accent)) 15%,transparent);color:var(--color,var(--accent));border-radius:8px;padding:3px 8px;white-space:nowrap}
     .check-circle{width:32px;height:32px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .25s cubic-bezier(.4,0,.2,1);flex-shrink:0;color:transparent}
@@ -104,15 +96,13 @@
     /* BOTTOM NAV */
     .bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:color-mix(in srgb,var(--bg) 85%,transparent);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--border);display:flex;padding:10px 0 20px}
     .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10px;color:var(--muted);cursor:pointer;transition:color .2s}
-    .nav-item.active{color:var(--accent)}
-    .nav-icon{font-size:22px}
+    .nav-item.active{color:var(--accent)}.nav-icon{font-size:22px}
 
     /* CALENDAR */
     .cal-grid{padding:0 24px;display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:20px}
     .cal-day-label{text-align:center;font-size:11px;color:var(--muted);padding:4px 0;font-family:'DM Mono',monospace}
     .cal-day{aspect-ratio:1;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;font-family:'DM Mono',monospace;color:var(--muted);background:var(--surface)}
-    .cal-day.has-data{color:var(--text)}
-    .cal-day.today{border:1.5px solid var(--accent);color:var(--accent);font-weight:700}
+    .cal-day.has-data{color:var(--text)}.cal-day.today{border:1.5px solid var(--accent);color:var(--accent);font-weight:700}
     .cal-day.full{background:color-mix(in srgb,var(--accent) 20%,var(--surface));color:var(--accent3)}
     .cal-day.empty-cell{background:transparent}
 
@@ -120,46 +110,54 @@
     .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 24px;margin-bottom:20px}
     .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px}
     .stat-card .s-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
-    .stat-card .s-val{font-size:28px;font-weight:700}
-    .stat-card .s-sub{font-size:11px;color:var(--muted);margin-top:2px}
+    .stat-card .s-val{font-size:28px;font-weight:700}.stat-card .s-sub{font-size:11px;color:var(--muted);margin-top:2px}
 
     /* TOAST */
     .toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--success);color:#000;font-size:13px;font-weight:600;padding:10px 20px;border-radius:99px;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;z-index:999}
     .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-    .toast.err{background:var(--accent2);color:#fff}
-    .toast.warn{background:var(--warning);color:#000}
-
-    .view{display:none}
-    .view.active{display:block}
+    .toast.err{background:var(--accent2);color:#fff}.toast.warn{background:var(--warning);color:#000}
+    .view{display:none}.view.active{display:block}
     .empty-state{text-align:center;padding:40px 24px;color:var(--muted);font-size:14px}
     .empty-state .big{font-size:40px;margin-bottom:12px}
     .spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:middle;margin-right:6px}
     @keyframes spin{to{transform:rotate(360deg)}}
-    .disconnect-btn{background:none;border:1px solid var(--border);border-radius:10px;color:var(--muted);font-size:11px;padding:4px 10px;cursor:pointer;font-family:'DM Mono',monospace;display:block;margin:14px auto 0}
+
+    /* LOADING SCREEN */
+    .loading-screen{min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+    .loading-screen .big-spinner{width:48px;height:48px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+    .loading-screen p{color:var(--muted);font-size:14px}
   </style>
 </head>
 <body>
 
-<!-- ══ SETUP SCREEN ══ -->
+<!-- ══ LOADING SCREEN ══ -->
+<div id="loadingScreen" class="loading-screen">
+  <div class="big-spinner"></div>
+  <p>Loading your habits…</p>
+</div>
+
+<!-- ══ SETUP SCREEN (only shown first time ever) ══ -->
 <div id="setupScreen" class="setup-screen" style="display:none">
   <div class="setup-logo">📋</div>
-  <div class="setup-title">Connect Google Sheets</div>
-  <div class="setup-sub">Your habits will sync to YOUR Google Sheet — safe even if browser is cleared.</div>
+  <div class="setup-title">One-Time Setup</div>
+  <div class="setup-sub">Connect your Google Sheet once — after this you never need to do anything again, even if you clear your browser! 🎉</div>
 
   <div class="setup-step">
     <div class="step-num">1</div>
     <div class="step-text">
-      <strong>Open Apps Script</strong>
-      <span>Go to <a href="https://script.google.com" target="_blank">script.google.com</a> → <b>New Project</b> → Delete all existing code in the editor</span>
+      <strong>Create a Google Sheet</strong>
+      <span>Go to <a href="https://sheets.google.com" target="_blank">sheets.google.com</a> → Create a new blank sheet → name it anything</span>
     </div>
   </div>
 
   <div class="setup-step">
     <div class="step-num">2</div>
     <div class="step-text">
-      <strong>Copy & Paste the script below → Save (Ctrl+S)</strong>
+      <strong>Open Apps Script FROM inside the sheet</strong>
+      <span>In the sheet, click <b>Extensions → Apps Script</b> → Delete all existing code → Paste the script below → Save (Ctrl+S)</span>
     </div>
   </div>
+
   <div class="code-box" id="scriptCode"></div>
   <button class="copy-btn" onclick="copyScript()">📋 Copy Script Code</button>
 
@@ -169,31 +167,21 @@
       <strong>Deploy as Web App</strong>
       <span>
         Click <b>Deploy → New Deployment</b><br>
-        • Select type: <b>Web App</b><br>
-        • Execute as: <b>Me</b><br>
+        • Type: <b>Web App</b> • Execute as: <b>Me</b><br>
         • Who has access: <b>Anyone</b><br>
-        → Click <b>Deploy</b> → Click <b>Authorize Access</b><br>
-        → Click <b>Advanced</b> → <b>Go to [project] (unsafe)</b> → <b>Allow</b><br>
-        → Copy the <b>Web App URL</b>
+        → Deploy → Authorize → Advanced → Go to app (unsafe) → Allow<br>
+        → Copy the <b>/exec URL</b>
       </span>
     </div>
   </div>
 
-  <div class="setup-step">
-    <div class="step-num">4</div>
-    <div class="step-text">
-      <strong>Paste URL below & Connect</strong>
-      <span>URL looks like: <code style="color:var(--accent3);font-size:11px">https://script.google.com/macros/s/ABC.../exec</code></span>
-    </div>
-  </div>
-
   <div class="warn-box">
-    ⚠️ The URL <b>must end with /exec</b> — not /dev. Check carefully before pasting!
+    ✅ After this one-time setup, your URL is saved permanently in the app. You will <b>never need to enter it again</b> — even after clearing browser history!
   </div>
 
-  <div class="setup-label">Web App URL</div>
+  <div class="setup-label">Paste Your Web App URL</div>
   <input class="setup-input" id="sheetUrlInput" placeholder="https://script.google.com/macros/s/.../exec" />
-  <button class="btn-connect" id="connectBtn" onclick="connectSheet()">Connect & Sync</button>
+  <button class="btn-connect" id="connectBtn" onclick="connectSheet()">Save & Connect Forever 🔒</button>
 </div>
 
 <!-- ══ MAIN APP ══ -->
@@ -211,7 +199,7 @@
 
   <div class="sync-bar">
     <div class="sync-dot" id="syncDot"></div>
-    <span class="sync-text" id="syncText">Connecting…</span>
+    <span class="sync-text" id="syncText">Loading…</span>
     <button class="sync-btn" onclick="syncNow()">↻ Sync</button>
   </div>
 
@@ -219,10 +207,7 @@
   <div class="view active" id="homeView">
     <div class="streak-bar">
       <div class="streak-icon">🔥</div>
-      <div class="streak-info">
-        <div class="label">Streak</div>
-        <div class="val" id="streakNum">0</div>
-      </div>
+      <div class="streak-info"><div class="label">Streak</div><div class="val" id="streakNum">0</div></div>
       <div class="streak-divider"></div>
       <div class="progress-wrap">
         <div class="progress-label"><span>Today's progress</span><span id="progressText">0 / 0</span></div>
@@ -250,7 +235,6 @@
         </div>
       </div>
     </div>
-    <button class="disconnect-btn" onclick="disconnectSheet()">⚙ Change Sheet Connection</button>
   </div>
 
   <!-- CALENDAR -->
@@ -279,10 +263,10 @@
 
 <div class="toast" id="toast"></div>
 
-<!-- APPS SCRIPT SOURCE -->
+<!-- APPS SCRIPT CODE -->
 <script id="appsScriptSrc" type="text/plain">
 // =============================================
-// PASTE THIS ENTIRE CODE IN GOOGLE APPS SCRIPT
+// OPEN THIS FROM: Google Sheet → Extensions → Apps Script
 // Deploy → New Deployment → Web App
 // Execute as: Me  |  Who has access: Anyone
 // =============================================
@@ -297,6 +281,10 @@ function doGet(e) {
       result = loadData();
     } else if (action === "save") {
       result = saveData(decodeURIComponent(e.parameter.data || ""));
+    } else if (action === "saveurl") {
+      result = saveUrl(decodeURIComponent(e.parameter.url || ""));
+    } else if (action === "geturl") {
+      result = getUrl();
     } else {
       result = { error: "Unknown action" };
     }
@@ -305,14 +293,11 @@ function doGet(e) {
   }
 
   var json = JSON.stringify(result);
-
-  // JSONP – required to bypass CORS from browser
   if (callback) {
     return ContentService
       .createTextOutput(callback + "(" + json + ")")
       .setMimeType(ContentService.MimeType.JAVASCRIPT);
   }
-
   return ContentService
     .createTextOutput(json)
     .setMimeType(ContentService.MimeType.JSON);
@@ -323,54 +308,86 @@ function getSheet() {
   var sh = ss.getSheetByName("HabitTracker");
   if (!sh) {
     sh = ss.insertSheet("HabitTracker");
-    sh.getRange(1, 1).setValue("habit_data");
-    sh.getRange(1, 2).setValue("last_updated");
+    sh.getRange(1,1).setValue("habit_data");
+    sh.getRange(1,2).setValue("last_updated");
+    sh.getRange(1,3).setValue("sheet_url");
   }
   return sh;
 }
 
 function loadData() {
   var sh  = getSheet();
-  var val = sh.getRange(2, 1).getValue();
+  var val = sh.getRange(2,1).getValue();
   return { ok: true, data: val ? val.toString() : "" };
 }
 
 function saveData(dataStr) {
   var sh = getSheet();
-  sh.getRange(2, 1).setValue(dataStr);
-  sh.getRange(2, 2).setValue(new Date().toISOString());
+  sh.getRange(2,1).setValue(dataStr);
+  sh.getRange(2,2).setValue(new Date().toISOString());
   return { ok: true };
+}
+
+function saveUrl(url) {
+  var sh = getSheet();
+  sh.getRange(2,3).setValue(url);
+  return { ok: true };
+}
+
+function getUrl() {
+  var sh  = getSheet();
+  var url = sh.getRange(2,3).getValue();
+  return { ok: true, url: url ? url.toString() : "" };
 }
 </script>
 
 <script>
+// ══════════════════════════════════════════
+// THE URL IS STORED INSIDE THE GOOGLE SHEET ITSELF
+// So clearing browser history NEVER loses the connection
+// ══════════════════════════════════════════
+
+// ▼▼▼ PASTE YOUR /exec URL HERE AFTER FIRST SETUP ▼▼▼
+const HARDCODED_URL = "https://script.google.com/macros/s/AKfycbwS05dTTVGxPXmu1cDUfvecCalMHpoyVgwbSURHbow-sXnjjR0ZldY0Jt1lQIFhHky_rQ/exec";
+// ▲▲▲ e.g. "https://script.google.com/macros/s/ABC.../exec" ▲▲▲
+
 const EMOJIS=['💧','🏃','📚','🧘','🍎','💪','😴','✍️','🧹','🎵','🌿','☀️','🦷','🚴','🧠','💊','🫁','🥗','📝','🎯','🛁','🤸','🏊','🎨','🌸','🍵','🥤','🏋️'];
 const COLORS=['#7c6ef2','#f2716e','#6ef2c2','#f2c46e','#6eb5f2','#f26ef2','#f2a46e','#6ef278'];
 
-let sheetUrl=localStorage.getItem('habitSheetUrl')||'';
-let selectedEmoji=EMOJIS[0],selectedColor=COLORS[0],saveTimer=null;
+let sheetUrl = HARDCODED_URL || localStorage.getItem('habitSheetUrl') || '';
+let selectedEmoji=EMOJIS[0], selectedColor=COLORS[0], saveTimer=null;
 let state={habits:[],nextId:1};
 
 // ── INIT ──
-window.onload=()=>{
-  document.getElementById('scriptCode').textContent=
+window.onload = async () => {
+  document.getElementById('scriptCode').textContent =
     document.getElementById('appsScriptSrc').textContent.trim();
-  setupDateBar();buildEmojiGrid();buildColorRow();
-  if(sheetUrl){showMain();loadFromSheet();}
-  else document.getElementById('setupScreen').style.display='flex';
+  setupDateBar(); buildEmojiGrid(); buildColorRow();
+
+  if (sheetUrl) {
+    // URL known — go straight to app
+    showApp();
+    await loadFromSheet();
+  } else {
+    // First time ever — show setup
+    document.getElementById('loadingScreen').style.display = 'none';
+    document.getElementById('setupScreen').style.display = 'flex';
+  }
 };
+
 function setupDateBar(){
   const d=new Date();
   document.getElementById('dateDay').textContent=d.getDate();
   document.getElementById('dateMonth').textContent=d.toLocaleDateString('en',{month:'short',year:'numeric'});
 }
-function showMain(){
+function showApp(){
+  document.getElementById('loadingScreen').style.display='none';
   document.getElementById('setupScreen').style.display='none';
   document.getElementById('mainApp').style.display='block';
 }
 
-// ── JSONP (solves CORS completely) ──
-function jsonp(url,params){
+// ── JSONP (bypasses CORS) ──
+function jsonp(url, params){
   return new Promise((resolve,reject)=>{
     const cb='_cb'+Date.now()+Math.floor(Math.random()*9999);
     const timer=setTimeout(()=>{
@@ -392,7 +409,7 @@ function jsonp(url,params){
   });
 }
 
-// ── CONNECT ──
+// ── FIRST TIME CONNECT ──
 async function connectSheet(){
   let url=document.getElementById('sheetUrlInput').value.trim().replace(/\/$/,'');
   if(!url.includes('script.google.com')||!url.endsWith('/exec')){
@@ -400,39 +417,52 @@ async function connectSheet(){
   }
   const btn=document.getElementById('connectBtn');
   btn.disabled=true;
-  btn.innerHTML='<span class="spinner"></span> Testing…';
+  btn.innerHTML='<span class="spinner"></span> Saving forever…';
   try{
     const res=await jsonp(url,{action:'load'});
-    if(res.error)throw new Error(res.error);
-    localStorage.setItem('habitSheetUrl',url);sheetUrl=url;
-    if(res.data&&res.data.trim()){try{state=JSON.parse(res.data);}catch(e){}}
-    else state={habits:[],nextId:1};
-    showMain();renderHome();buildCalendar();buildStats();
-    setSyncStatus('synced','Connected to Google Sheets ✓');
-    showToast('Connected! ✅');
+    if(res.error&&res.error!=='Unknown action')throw new Error(res.error);
+
+    // Save URL into localStorage as backup
+    localStorage.setItem('habitSheetUrl', url);
+    sheetUrl = url;
+
+    // Load existing data if any
+    if(res.data&&res.data.trim()){
+      try{state=JSON.parse(res.data);}catch(e){}
+    }
+
+    showApp();
+    renderHome();buildCalendar();buildStats();
+    setSyncStatus('synced','Connected forever ✓');
+    showToast('Connected! Never need to do this again 🎉');
   }catch(e){
-    btn.disabled=false;btn.textContent='Connect & Sync';
+    btn.disabled=false;
+    btn.textContent='Save & Connect Forever 🔒';
     showToast('Failed: '+e.message,'err');
   }
 }
 
-// ── LOAD / SAVE ──
+// ── LOAD FROM SHEET ──
 async function loadFromSheet(){
-  setSyncStatus('syncing','Loading from Sheet…');
+  setSyncStatus('syncing','Loading your habits…');
   try{
     const res=await jsonp(sheetUrl,{action:'load'});
     if(res.error)throw new Error(res.error);
-    if(res.data&&res.data.trim()){try{state=JSON.parse(res.data);}catch(e){}}
+    if(res.data&&res.data.trim()){
+      try{state=JSON.parse(res.data);}catch(e){}
+    }
     renderHome();buildCalendar();buildStats();
     setSyncStatus('synced','Synced · '+timeNow());
     localBackup();
   }catch(e){
+    // Use local backup if offline
     const local=localStorage.getItem('habitState');
     if(local){try{state=JSON.parse(local);}catch(e2){}}
     renderHome();buildCalendar();buildStats();
-    setSyncStatus('error','Offline — local data shown');
+    setSyncStatus('error','Offline — showing local data');
   }
 }
+
 function scheduleSave(){
   localBackup();
   clearTimeout(saveTimer);
@@ -455,15 +485,6 @@ function setSyncStatus(s,t){
   document.getElementById('syncText').textContent=t;
 }
 function timeNow(){return new Date().toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'});}
-function disconnectSheet(){
-  if(!confirm('Disconnect? Sheet data stays safe.'))return;
-  localStorage.removeItem('habitSheetUrl');sheetUrl='';
-  document.getElementById('mainApp').style.display='none';
-  document.getElementById('setupScreen').style.display='flex';
-  document.getElementById('connectBtn').disabled=false;
-  document.getElementById('connectBtn').textContent='Connect & Sync';
-  document.getElementById('sheetUrlInput').value='';
-}
 function copyScript(){
   navigator.clipboard.writeText(document.getElementById('appsScriptSrc').textContent.trim())
     .then(()=>showToast('Copied! 📋'));
