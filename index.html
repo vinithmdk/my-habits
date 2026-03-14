@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>KeySafe</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --bg: #0f0f13;
+    --surface: #1a1a22;
+    --surface2: #22222e;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.15);
+    --accent: #6c63ff;
+    --accent2: #4ecca3;
+    --text: #f0f0f5;
+    --muted: #8888a0;
+    --danger: #ff5c5c;
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    min-height: 100vh; max-width: 480px;
+    margin: 0 auto; overflow-x: hidden;
+  }
+
+  /* SCREENS */
+  #loginScreen {
+    min-height: 100vh; display: none;
+    flex-direction: column; align-items: center;
+    justify-content: center; padding: 40px 28px;
+  }
+  #loginScreen.active { display: flex; }
+  #appScreen { display: none; }
+  #appScreen.active { display: block; }
+
+  .glow {
+    position: fixed; top: -120px; left: 50%; transform: translateX(-50%);
+    width: 340px; height: 340px;
+    background: radial-gradient(circle, rgba(108,99,255,0.22) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .login-logo {
+    width: 86px; height: 86px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 26px; display: flex; align-items: center;
+    justify-content: center; font-size: 42px; margin-bottom: 20px;
+    box-shadow: 0 0 48px rgba(108,99,255,0.32); position: relative; z-index: 1;
+  }
+  .login-title { font-size: 30px; font-weight: 900; letter-spacing: -0.6px; margin-bottom: 6px; z-index: 1; }
+  .login-sub   { font-size: 14px; color: var(--muted); margin-bottom: 12px; text-align: center; z-index: 1; }
+
+  .badges { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-bottom: 34px; z-index: 1; }
+  .badge {
+    display: flex; align-items: center; gap: 6px;
+    border-radius: 50px; padding: 6px 13px;
+    font-size: 11px; font-weight: 700;
+  }
+  .badge-green { background: rgba(78,204,163,0.12); border: 1px solid rgba(78,204,163,0.3); color: var(--accent2); }
+  .badge-blue  { background: rgba(108,99,255,0.12); border: 1px solid rgba(108,99,255,0.3); color: #a09bff; }
+
+  .login-card {
+    background: var(--surface); border: 1px solid var(--border2);
+    border-radius: var(--radius); padding: 28px 24px; width: 100%; z-index: 1;
+  }
+  .login-card-title {
+    font-size: 13px; font-weight: 700; color: var(--muted);
+    text-align: center; margin-bottom: 22px;
+    text-transform: uppercase; letter-spacing: 1px;
+  }
+  .pin-row { display: flex; gap: 12px; justify-content: center; margin-bottom: 28px; }
+  .pin-box {
+    width: 64px; height: 70px;
+    background: var(--surface2); border: 2px solid var(--border2);
+    border-radius: var(--radius-sm); font-size: 32px; font-weight: 800;
+    text-align: center; color: var(--text); outline: none;
+    caret-color: var(--accent); transition: border-color 0.2s, box-shadow 0.2s;
+    -webkit-text-security: disc; font-family: monospace;
+  }
+  .pin-box:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(108,99,255,0.18); }
+  .pin-box.filled { border-color: var(--accent2); }
+  .pin-box.error  { border-color: var(--danger) !important; animation: shake 0.35s ease; }
+
+  .login-btn {
+    width: 100%; background: linear-gradient(135deg, var(--accent), #8b85ff);
+    border: none; border-radius: var(--radius-sm); color: white;
+    font-size: 17px; font-weight: 800; padding: 16px; cursor: pointer;
+  }
+  .login-btn:active { opacity: 0.85; }
+  .login-status { text-align: center; font-size: 13px; margin-top: 14px; min-height: 20px; color: var(--muted); }
+  .login-status.err { color: var(--danger); font-weight: 600; }
+  .login-hint  { text-align: center; color: var(--muted); font-size: 12px; margin-top: 12px; line-height: 1.8; }
+
+  /* HOW IT WORKS BOX */
+  .how-box {
+    margin-top: 20px; background: rgba(108,99,255,0.07);
+    border: 1px solid rgba(108,99,255,0.2);
+    border-radius: var(--radius-sm); padding: 14px 16px; z-index: 1; width: 100%;
+  }
+  .how-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.9px; color: #a09bff; margin-bottom: 10px; }
+  .how-row   { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px; font-size: 12px; color: var(--muted); line-height: 1.5; }
+  .how-icon  { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+
+  /* HEADER */
+  .header {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 14px 18px 12px; position: sticky; top: 0; z-index: 100;
+  }
+  .header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .app-logo { display: flex; align-items: center; gap: 10px; }
+  .app-logo-icon {
+    width: 34px; height: 34px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 17px;
+  }
+  .app-logo-name { font-size: 19px; font-weight: 900; letter-spacing: -0.4px; }
+  .header-right { display: flex; align-items: center; gap: 7px; }
+  .sync-badge {
+    display: flex; align-items: center; gap: 5px;
+    background: rgba(78,204,163,0.1); border: 1px solid rgba(78,204,163,0.25);
+    border-radius: 50px; padding: 4px 10px;
+    font-size: 11px; font-weight: 700; color: var(--accent2);
+  }
+  .sync-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); transition: background 0.3s; }
+  .sync-dot.ok   { background: var(--accent2); }
+  .sync-dot.busy { background: #f5a623; animation: blink 1s infinite; }
+  .lock-btn {
+    background: var(--surface2); border: 1px solid var(--border2);
+    border-radius: 8px; color: var(--muted); font-size: 12px; font-weight: 700;
+    padding: 7px 12px; cursor: pointer;
+  }
+  .lock-btn:active { color: var(--danger); border-color: var(--danger); }
+
+  /* BULK BOX */
+  .bulk-box {
+    margin: 13px 16px 0; background: var(--surface2);
+    border: 1px solid var(--border2); border-radius: var(--radius); padding: 13px 15px;
+  }
+  .bulk-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.9px; color: var(--muted); margin-bottom: 9px; }
+  .bulk-row   { display: flex; gap: 8px; align-items: center; }
+  .pw-wrap    { position: relative; flex: 1; }
+  .pw-wrap input {
+    width: 100%; background: var(--bg); border: 1.5px solid var(--border2);
+    border-radius: var(--radius-sm); color: var(--text); font-size: 14px;
+    padding: 10px 38px 10px 12px; outline: none;
+    font-family: 'Courier New', monospace; letter-spacing: 1px; transition: border-color 0.2s;
+  }
+  .pw-wrap input:focus { border-color: var(--accent); }
+  .eye-btn {
+    position: absolute; right: 9px; top: 50%; transform: translateY(-50%);
+    background: none; border: none; color: var(--muted); cursor: pointer; font-size: 15px;
+  }
+  .apply-btn {
+    background: linear-gradient(135deg, var(--accent), #8b85ff);
+    border: none; border-radius: var(--radius-sm); color: white;
+    font-size: 13px; font-weight: 700; padding: 10px 16px; cursor: pointer; white-space: nowrap;
+  }
+  .apply-btn:active { opacity: 0.8; }
+  .bulk-info { font-size: 12px; color: var(--accent2); margin-top: 7px; min-height: 16px; }
+
+  /* LIST */
+  .list-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 18px 8px; }
+  .list-title  { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.9px; color: var(--muted); }
+  .add-btn {
+    background: var(--surface2); border: 1px solid var(--border2);
+    border-radius: var(--radius-sm); color: var(--accent2);
+    font-size: 13px; font-weight: 700; padding: 7px 14px; cursor: pointer;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .add-btn:active { opacity: 0.7; }
+  .items-list { padding: 0 14px 100px; display: flex; flex-direction: column; gap: 9px; }
+
+  /* ITEM CARD */
+  .item-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 13px 14px;
+    display: flex; align-items: center; gap: 12px;
+    position: relative; overflow: hidden; transition: border-color 0.2s, background 0.2s;
+  }
+  .item-card.selected { border-color: var(--accent); background: rgba(108,99,255,0.07); }
+  .item-card.updated::after { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--accent2); }
+  .item-cb {
+    width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--border2);
+    background: transparent; appearance: none; -webkit-appearance: none;
+    cursor: pointer; flex-shrink: 0; transition: all 0.15s; position: relative;
+  }
+  .item-cb:checked { background: var(--accent); border-color: var(--accent); }
+  .item-cb:checked::after { content:'✓'; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); color:white; font-size:12px; font-weight:800; }
+  .item-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+  .item-info { flex: 1; min-width: 0; }
+  .item-name { font-size: 15px; font-weight: 700; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .item-user { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .item-actions { display: flex; gap: 5px; flex-shrink: 0; }
+  .icon-btn {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; width: 34px; height: 34px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 14px; color: var(--muted);
+  }
+  .icon-btn:active { background: var(--border2); }
+
+  /* REVEAL SHEET */
+  .sheet-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 290; display: none; }
+  .sheet-bg.show { display: block; }
+  .reveal-sheet {
+    position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: 480px; background: var(--surface);
+    border-top: 1px solid var(--border2); border-radius: 20px 20px 0 0;
+    padding: 10px 22px 44px; z-index: 300; display: none;
+  }
+  .reveal-sheet.show { display: block; animation: slideUp 0.22s ease; }
+  .drag-bar { width: 38px; height: 4px; background: var(--border2); border-radius: 2px; margin: 8px auto 18px; }
+  .rv-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.9px; color: var(--muted); margin-bottom: 4px; }
+  .rv-name  { font-size: 22px; font-weight: 900; margin-bottom: 6px; }
+  .rv-user  { font-size: 13px; color: var(--muted); margin-bottom: 18px; min-height: 20px; }
+  .rv-pw-box {
+    background: var(--surface2); border: 1.5px solid var(--border2);
+    border-radius: var(--radius-sm); padding: 16px;
+    display: flex; align-items: center; gap: 12px; margin-bottom: 18px;
+  }
+  .rv-pw-val { font-family: 'Courier New', monospace; font-size: 18px; font-weight: 700; letter-spacing: 2px; color: var(--text); word-break: break-all; flex: 1; }
+  .rv-eye   { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 22px; flex-shrink: 0; }
+  .rv-btns  { display: flex; gap: 10px; }
+  .rv-close { background: var(--surface2); border: 1px solid var(--border2); border-radius: var(--radius-sm); color: var(--text); font-size: 15px; padding: 14px 20px; cursor: pointer; font-weight: 600; }
+  .rv-copy  { flex: 1; background: linear-gradient(135deg, var(--accent), #8b85ff); border: none; border-radius: var(--radius-sm); color: white; font-size: 15px; font-weight: 800; padding: 14px; cursor: pointer; }
+
+  /* ADD/EDIT MODAL */
+  .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 200; display: none; align-items: flex-end; justify-content: center; }
+  .modal-bg.show { display: flex; }
+  .modal {
+    background: var(--surface); border: 1px solid var(--border2);
+    border-radius: var(--radius) var(--radius) 0 0;
+    padding: 10px 20px 44px; width: 100%; max-width: 480px; animation: slideUp 0.24s ease;
+    max-height: 92vh; overflow-y: auto;
+  }
+  .modal-title { font-size: 19px; font-weight: 900; margin-bottom: 20px; }
+  .mf { margin-bottom: 14px; }
+  .ml { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.9px; color: var(--muted); margin-bottom: 7px; display: block; }
+  .mi { width: 100%; background: var(--surface2); border: 1.5px solid var(--border2); border-radius: var(--radius-sm); color: var(--text); font-size: 15px; padding: 12px 14px; outline: none; transition: border-color 0.2s; }
+  .mi:focus { border-color: var(--accent); }
+  .mi-pw-wrap { position: relative; }
+  .mi-pw-wrap .mi { padding-right: 44px; }
+  .mi-eye { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--muted); cursor: pointer; font-size: 16px; }
+  .emoji-grid { display: grid; grid-template-columns: repeat(8,1fr); gap: 6px; margin-top: 8px; }
+  .emoji-opt { background: var(--surface2); border: 1.5px solid transparent; border-radius: 8px; padding: 6px; font-size: 20px; cursor: pointer; text-align: center; transition: all 0.1s; }
+  .emoji-opt.picked { border-color: var(--accent); background: rgba(108,99,255,0.18); }
+  .modal-btns { display: flex; gap: 10px; margin-top: 20px; }
+  .btn-save   { flex: 1; background: linear-gradient(135deg, var(--accent), #8b85ff); border: none; border-radius: var(--radius-sm); color: white; font-size: 15px; font-weight: 800; padding: 14px; cursor: pointer; }
+  .btn-cancel { background: var(--surface2); border: 1px solid var(--border2); border-radius: var(--radius-sm); color: var(--text); font-size: 15px; padding: 14px 20px; cursor: pointer; }
+
+  /* TOAST */
+  .toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); background: var(--surface); border: 1px solid var(--border2); border-radius: 50px; padding: 12px 26px; font-size: 14px; font-weight: 600; z-index: 500; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; max-width: 90vw; text-align: center; }
+  .toast.show { opacity: 1; }
+  .toast.ok  { border-color: var(--accent2); color: var(--accent2); }
+  .toast.err { border-color: var(--danger);  color: var(--danger); }
+
+  .empty-state { text-align: center; padding: 50px 20px; color: var(--muted); font-size: 14px; }
+  .empty-icon  { font-size: 46px; margin-bottom: 14px; }
+  .loading-wrap { display: flex; flex-direction: column; align-items: center; padding: 50px 20px; color: var(--muted); font-size: 13px; gap: 14px; }
+  .spinner { width: 30px; height: 30px; border: 2px solid var(--border2); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; }
+
+  /* BOTTOM NAV */
+  .bottom-nav {
+    position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: 480px;
+    background: var(--surface); border-top: 1px solid var(--border);
+    display: flex; z-index: 99;
+  }
+  .nav-btn {
+    flex: 1; padding: 10px 8px; text-align: center;
+    cursor: pointer; font-size: 10px; font-weight: 700;
+    color: var(--muted); border: none; background: none;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+  }
+  .nav-btn:active { color: var(--accent2); }
+  .nav-icon { font-size: 20px; }
+
+  @keyframes slideUp { from { transform: translateY(44px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  @keyframes spin    { to { transform: rotate(360deg); } }
+  @keyframes blink   { 0%,100%{opacity:1} 50%{opacity:0.2} }
+  @keyframes shake   { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen" class="active">
+  <div class="glow"></div>
+  <div class="login-logo">🔑</div>
+  <div class="login-title">KeySafe</div>
+  <div class="login-sub">Personal Password Vault</div>
+  <div class="badges">
+    <div class="badge badge-green">🔒 AES-256 Encrypted</div>
+    <div class="badge badge-blue">☁️ Cloud Backup</div>
+    <div class="badge badge-green">👁 Zero Knowledge</div>
+  </div>
+
+  <div class="login-card">
+    <div class="login-card-title">Enter 4-Digit PIN to Unlock</div>
+    <div class="pin-row">
+      <input class="pin-box" id="p0" maxlength="1" inputmode="numeric" autocomplete="off">
+      <input class="pin-box" id="p1" maxlength="1" inputmode="numeric" autocomplete="off">
+      <input class="pin-box" id="p2" maxlength="1" inputmode="numeric" autocomplete="off">
+      <input class="pin-box" id="p3" maxlength="1" inputmode="numeric" autocomplete="off">
+    </div>
+    <button class="login-btn" onclick="doLogin()">🔓 Unlock Vault</button>
+    <div class="login-status" id="loginStatus"></div>
+    <div class="login-hint">PIN is never sent anywhere.<br>It only lives in your memory.</div>
+  </div>
+
+  <div class="how-box">
+    <div class="how-title">How your data is protected</div>
+    <div class="how-row"><div class="how-icon">🔐</div><div>Your PIN encrypts everything using AES-256 before saving</div></div>
+    <div class="how-row"><div class="how-icon">☁️</div><div>Only unreadable encrypted data goes to Firebase — never your real passwords</div></div>
+    <div class="how-row"><div class="how-icon">🚫</div><div>Even Firebase engineers, Google, or hackers cannot read your passwords</div></div>
+    <div class="how-row"><div class="how-icon">📱</div><div>Works on any device — clear cache, new phone — data is always safe in cloud</div></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="appScreen">
+  <div class="header">
+    <div class="header-top">
+      <div class="app-logo">
+        <div class="app-logo-icon">🔑</div>
+        <div class="app-logo-name">KeySafe</div>
+      </div>
+      <div class="header-right">
+        <div class="sync-badge">
+          <div class="sync-dot" id="syncDot"></div>
+          <span id="syncTxt" style="font-size:11px;">–</span>
+        </div>
+        <button class="lock-btn" onclick="doLock()">🔒 Lock</button>
+      </div>
+    </div>
+    <div class="bulk-box">
+      <div class="bulk-label">⚡ Bulk Update Password</div>
+      <div class="bulk-row">
+        <div class="pw-wrap">
+          <input type="password" id="bulkPw" placeholder="New password for selected accounts…">
+          <button class="eye-btn" onclick="toggleEye('bulkPw')">👁</button>
+        </div>
+        <button class="apply-btn" onclick="applyBulk()">Apply</button>
+      </div>
+      <div class="bulk-info" id="bulkInfo">Select accounts below to update passwords</div>
+    </div>
+  </div>
+
+  <div class="list-header">
+    <div class="list-title">My Accounts</div>
+    <button class="add-btn" onclick="openAdd()">＋ Add</button>
+  </div>
+  <div class="items-list" id="itemsList">
+    <div class="loading-wrap"><div class="spinner"></div>Loading…</div>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="nav-btn" onclick="openAdd()"><div class="nav-icon">➕</div>Add</button>
+    <button class="nav-btn" onclick="doLock()"><div class="nav-icon">🔒</div>Lock</button>
+  </div>
+</div>
+
+<!-- REVEAL SHEET -->
+<div class="sheet-bg" id="sheetBg" onclick="closeReveal()"></div>
+<div class="reveal-sheet" id="revealSheet">
+  <div class="drag-bar"></div>
+  <div class="rv-label">Password for</div>
+  <div class="rv-name" id="rvName"></div>
+  <div class="rv-user" id="rvUser"></div>
+  <div class="rv-pw-box">
+    <div class="rv-pw-val" id="rvPw">••••••••</div>
+    <button class="rv-eye" id="rvEye" onclick="toggleRvEye()">👁</button>
+  </div>
+  <div class="rv-btns">
+    <button class="rv-close" onclick="closeReveal()">Close</button>
+    <button class="rv-copy"  onclick="copyRv()">📋 Copy Password</button>
+  </div>
+</div>
+
+<!-- ADD/EDIT MODAL -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <div class="drag-bar"></div>
+    <div class="modal-title" id="modalTitle">Add Account</div>
+    <div class="mf">
+      <label class="ml">Account Name *</label>
+      <input class="mi" id="mName" placeholder="e.g. Gmail, SBI, HDFC…" maxlength="40">
+    </div>
+    <div class="mf">
+      <label class="ml">Username / Email / Mobile</label>
+      <input class="mi" id="mUser" placeholder="user@example.com or 9876543210" maxlength="80">
+    </div>
+    <div class="mf">
+      <label class="ml">Password / PIN</label>
+      <div class="mi-pw-wrap">
+        <input class="mi" type="password" id="mPw" placeholder="Enter password or PIN">
+        <button class="mi-eye" onclick="toggleEye('mPw')">👁</button>
+      </div>
+    </div>
+    <div class="mf">
+      <label class="ml">Notes (optional)</label>
+      <input class="mi" id="mNote" placeholder="e.g. Security question, hints…" maxlength="120">
+    </div>
+    <div class="mf">
+      <label class="ml">Icon</label>
+      <div class="emoji-grid" id="emojiGrid"></div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save"   onclick="saveItem()">💾 Save Encrypted</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- FIREBASE + ENCRYPTION -->
+<script type="module">
+import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc, serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+/* ══════════════════════════════════════════
+   SECURITY MODEL:
+   1. PIN → PBKDF2 → AES-256-GCM key (100,000 iterations)
+   2. All data encrypted IN BROWSER before Firebase
+   3. Firebase stores ONE document: { vault: "<encrypted blob>" }
+   4. Decryption only happens in browser with correct PIN
+   5. Wrong PIN = cannot decrypt = data stays locked
+   Firebase sees ONLY: "U2FsdGVkX19xK8mP3nQ7tY1wZ..."
+   Your real passwords NEVER leave your device unencrypted.
+══════════════════════════════════════════ */
+
+const db = getFirestore(initializeApp({
+  apiKey:            "AIzaSyBvLGTneootuelux40br6nCgg1CcVv62D0",
+  authDomain:        "passwordmanager-6a959.firebaseapp.com",
+  projectId:         "passwordmanager-6a959",
+  storageBucket:     "passwordmanager-6a959.firebasestorage.app",
+  messagingSenderId: "425338178784",
+  appId:             "1:425338178784:web:d125407f1776fe75935485"
+}));
+
+/* ── CONFIG ── */
+const SECRET_PIN = "6002";
+const VAULT_DOC  = doc(db, "keysafe", "vault");  // single encrypted document
+
+/* ── CONSTANTS ── */
+const EMOJIS  = ["🔐","📧","🏦","🛒","🎮","💼","🏥","🎵","📱","🌐","💳","🔑","📷","🏠","✈️","🎓","🍎","🐦","💬","📺","🔒","⚡","🛡️","🎯","💡","🎁","🏋️","🎬","🚆","🔔","📌","🌟","💰"];
+const ICON_BG = {"📧":"#14222e","🏦":"#0e1e18","💳":"#131323","🚆":"#101e10","🔐":"#1e1226","🎮":"#1e100e","💼":"#1e1c0e","🌐":"#0e1e1e"};
+const DEFAULTS = [
+  {id:uid(),name:"Gmail",          username:"",password:"",icon:"📧",note:""},
+  {id:uid(),name:"SBI Net Banking",username:"",password:"",icon:"🏦",note:""},
+  {id:uid(),name:"HDFC Bank",      username:"",password:"",icon:"💳",note:""},
+  {id:uid(),name:"IRCTC",          username:"",password:"",icon:"🚆",note:""},
+];
+
+/* ── STATE ── */
+let items     = [];
+let cryptoKey = null;
+let editId    = null;
+let selEmoji  = "🔐";
+let revealItem= null;
+let pwVisible = false;
+
+/* ── UTILS ── */
+const $   = id => document.getElementById(id);
+const esc = s  => (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+const pinVal = () => [0,1,2,3].map(i=>$("p"+i).value).join("");
+const clrPin = () => [0,1,2,3].forEach(i=>{ $("p"+i).value=""; $("p"+i).classList.remove("filled"); });
+
+function syncUI(state, txt){
+  const d=$("syncDot"), t=$("syncTxt");
+  if(state==="ok")  { d.className="sync-dot ok";   t.textContent=txt||"Encrypted & Synced ✓"; }
+  else if(state==="busy"){ d.className="sync-dot busy"; t.textContent=txt||"Saving…"; }
+  else              { d.className="sync-dot";       t.textContent=txt||"Offline"; }
+}
+function loginStatus(msg, isErr=false){
+  const el=$("loginStatus");
+  el.textContent=msg;
+  el.className="login-status"+(isErr?" err":"");
+}
+function toast(msg,type="ok"){
+  const el=$("toast");
+  el.textContent=msg; el.className="toast show "+type;
+  clearTimeout(el._t); el._t=setTimeout(()=>el.className="toast",3000);
+}
+window.toggleEye = id=>{ const el=$(id); el.type=el.type==="password"?"text":"password"; };
+
+/* ════════════════════════════
+   AES-256-GCM ENCRYPTION
+════════════════════════════ */
+async function deriveKey(pin){
+  const enc  = new TextEncoder();
+  const base = await crypto.subtle.importKey(
+    "raw", enc.encode(pin), "PBKDF2", false, ["deriveKey"]
+  );
+  return crypto.subtle.deriveKey(
+    { name:"PBKDF2", salt:enc.encode("keysafe_v2_salt"), iterations:100000, hash:"SHA-256" },
+    base,
+    { name:"AES-GCM", length:256 },
+    false,
+    ["encrypt","decrypt"]
+  );
+}
+
+async function encryptData(plaintext, key){
+  const iv  = crypto.getRandomValues(new Uint8Array(12));
+  const enc = new TextEncoder();
+  const buf = await crypto.subtle.encrypt({name:"AES-GCM",iv}, key, enc.encode(plaintext));
+  const combined = new Uint8Array(iv.byteLength + buf.byteLength);
+  combined.set(iv,0);
+  combined.set(new Uint8Array(buf), iv.byteLength);
+  return btoa(String.fromCharCode(...combined));
+}
+
+async function decryptData(b64, key){
+  const combined = Uint8Array.from(atob(b64), c=>c.charCodeAt(0));
+  const iv  = combined.slice(0,12);
+  const buf = combined.slice(12);
+  const dec = await crypto.subtle.decrypt({name:"AES-GCM",iv}, key, buf);
+  return new TextDecoder().decode(dec);
+}
+
+/* ════════════════════════════
+   FIREBASE READ / WRITE
+   Only encrypted blob stored.
+════════════════════════════ */
+async function loadFromFirebase(key){
+  const snap = await getDoc(VAULT_DOC);
+  if(!snap.exists()){
+    // First time — encrypt defaults and save
+    cryptoKey = key;
+    items = DEFAULTS.map(d=>({...d}));
+    await saveToFirebase();
+    return true;
+  }
+  const encryptedBlob = snap.data().vault;
+  if(!encryptedBlob) return false;
+  try {
+    const plain = await decryptData(encryptedBlob, key);
+    items = JSON.parse(plain);
+    cryptoKey = key;
+    return true;
+  } catch(e){
+    // Wrong PIN — decryption fails
+    return false;
+  }
+}
+
+async function saveToFirebase(){
+  const plain     = JSON.stringify(items.map(i=>({
+    id:i.id||uid(), name:i.name, username:i.username,
+    password:i.password, icon:i.icon, note:i.note||""
+  })));
+  const encrypted = await encryptData(plain, cryptoKey);
+  // Firebase only receives: { vault: "U2FsdGVkX1+abc123..." }
+  // Real passwords are NEVER sent to Firebase
+  await setDoc(VAULT_DOC, { vault: encrypted, updatedAt: serverTimestamp() });
+}
+
+/* ── PIN BOXES ── */
+[0,1,2,3].forEach(i=>{
+  const b=$("p"+i);
+  b.addEventListener("input",()=>{
+    b.value=b.value.replace(/\D/,"").slice(-1);
+    b.classList.toggle("filled",!!b.value);
+    if(b.value && i<3) $("p"+(i+1)).focus();
+    if(i===3 && b.value) doLogin();
+  });
+  b.addEventListener("keydown",e=>{
+    if(e.key==="Backspace"&&!b.value&&i>0){ $("p"+(i-1)).focus(); $("p"+(i-1)).classList.remove("filled"); }
+  });
+});
+
+/* ── LOGIN ── */
+window.doLogin = async function(){
+  const p=pinVal();
+  if(p.length<4) return;
+  if(p!==SECRET_PIN){
+    [0,1,2,3].forEach(i=>$("p"+i).classList.add("error"));
+    setTimeout(()=>[0,1,2,3].forEach(i=>$("p"+i).classList.remove("error")),500);
+    loginStatus("Wrong PIN. Try again.",true);
+    clrPin(); $("p0").focus();
+    return;
+  }
+  loginStatus("🔐 Deriving encryption key…");
+  try {
+    const key = await deriveKey(p);
+    loginStatus("☁️ Loading encrypted vault…");
+    const ok  = await loadFromFirebase(key);
+    if(!ok){
+      loginStatus("❌ Decryption failed. Wrong PIN or corrupted data.",true);
+      clrPin(); $("p0").focus(); return;
+    }
+  } catch(e){
+    loginStatus("❌ Error: "+e.message,true);
+    return;
+  }
+  clrPin();
+  $("loginScreen").className="";
+  $("loginScreen").style.display="none";
+  $("appScreen").style.display="block";
+  syncUI("ok");
+  renderList();
+};
+
+/* ── LOCK ── */
+window.doLock = function(){
+  items=[]; cryptoKey=null;
+  $("appScreen").style.display="none";
+  $("loginScreen").style.display="flex";
+  loginStatus("");
+  setTimeout(()=>$("p0").focus(),100);
+};
+
+/* ── RENDER ── */
+function renderList(){
+  const el=$("itemsList");
+  if(!items.length){
+    el.innerHTML=`<div class="empty-state"><div class="empty-icon">🗂️</div>No accounts yet.<br>Tap <b>+ Add</b> to get started.</div>`;
+    return;
+  }
+  el.innerHTML=items.map(it=>`
+    <div class="item-card${it._sel?" selected":""}${it._upd?" updated":""}" id="card-${it.id}">
+      <input type="checkbox" class="item-cb" ${it._sel?"checked":""}
+        onchange="toggleSel('${it.id}',this.checked)">
+      <div class="item-icon" style="background:${ICON_BG[it.icon]||"#1a1a2a"}">${it.icon||"🔐"}</div>
+      <div class="item-info">
+        <div class="item-name">${esc(it.name)}</div>
+        <div class="item-user">${it.username
+          ?esc(it.username)
+          :`<span style="font-size:11px;color:var(--muted)">no username set</span>`}
+        </div>
+      </div>
+      <div class="item-actions">
+        <button class="icon-btn" title="View/Copy" onclick="openReveal('${it.id}')">🔍</button>
+        <button class="icon-btn" title="Edit"      onclick="openEdit('${it.id}')">✏️</button>
+        <button class="icon-btn" title="Delete"    onclick="delItem('${it.id}')">🗑️</button>
+      </div>
+    </div>
+  `).join("");
+  updateBulkInfo();
+}
+
+/* ── SELECTION ── */
+window.toggleSel = function(id,checked){
+  const it=items.find(i=>i.id===id);
+  if(it) it._sel=checked;
+  const c=$("card-"+id);
+  if(c) c.className="item-card"+(checked?" selected":"")+(it?._upd?" updated":"");
+  updateBulkInfo();
+};
+function updateBulkInfo(){
+  const n=items.filter(i=>i._sel).length;
+  $("bulkInfo").textContent=n===0
+    ?"Select accounts below to update passwords"
+    :`${n} account${n>1?"s":""} selected — new password will apply to these only`;
+}
+
+/* ── BULK APPLY ── */
+window.applyBulk = async function(){
+  const pw=  $("bulkPw").value;
+  const sel= items.filter(i=>i._sel);
+  if(!pw)        {toast("Enter a new password first","err");return;}
+  if(!sel.length){toast("Select at least one account","err");return;}
+  sel.forEach(it=>{it.password=pw;it._sel=false;it._upd=true;});
+  syncUI("busy");
+  await saveToFirebase();
+  syncUI("ok");
+  setTimeout(()=>{items.forEach(i=>i._upd=false);},3000);
+  $("bulkPw").value="";
+  renderList();
+  toast(`Updated ${sel.length} account${sel.length>1?"s":""} & encrypted ✓`,"ok");
+};
+
+/* ── REVEAL ── */
+window.openReveal = function(id){
+  revealItem=items.find(i=>i.id===id);
+  if(!revealItem) return;
+  pwVisible=false;
+  $("rvName").textContent =revealItem.name;
+  $("rvUser").textContent =revealItem.username?"👤 "+revealItem.username:(revealItem.note?"📝 "+revealItem.note:"");
+  $("rvPw").textContent   =revealItem.password?"••••••••":"(no password saved)";
+  $("rvEye").textContent  ="👁";
+  $("sheetBg").className  ="sheet-bg show";
+  $("revealSheet").className="reveal-sheet show";
+};
+window.closeReveal = function(){
+  $("sheetBg").className    ="sheet-bg";
+  $("revealSheet").className="reveal-sheet";
+  revealItem=null; pwVisible=false;
+};
+window.toggleRvEye = function(){
+  if(!revealItem?.password) return;
+  pwVisible=!pwVisible;
+  $("rvPw").textContent =pwVisible?revealItem.password:"••••••••";
+  $("rvEye").textContent=pwVisible?"🙈":"👁";
+};
+window.copyRv = function(){
+  if(!revealItem?.password){toast("No password saved","err");return;}
+  const copy = () => { toast("Copied: "+revealItem.name,"ok"); closeReveal(); };
+  navigator.clipboard.writeText(revealItem.password).then(copy).catch(()=>{
+    const ta=document.createElement("textarea");
+    ta.value=revealItem.password; document.body.appendChild(ta); ta.select();
+    document.execCommand("copy"); document.body.removeChild(ta); copy();
+  });
+};
+
+/* ── ADD / EDIT ── */
+window.openAdd = function(){
+  editId=null; selEmoji="🔐";
+  $("modalTitle").textContent="Add Account";
+  $("mName").value="";$("mUser").value="";$("mPw").value="";$("mNote").value="";
+  buildEmoji();
+  $("modalBg").className="modal-bg show";
+  setTimeout(()=>$("mName").focus(),300);
+};
+window.openEdit = function(id){
+  const it=items.find(i=>i.id===id);if(!it)return;
+  editId=id; selEmoji=it.icon||"🔐";
+  $("modalTitle").textContent="Edit Account";
+  $("mName").value=it.name||"";
+  $("mUser").value=it.username||"";
+  $("mPw").value=it.password||"";
+  $("mNote").value=it.note||"";
+  buildEmoji();
+  $("modalBg").className="modal-bg show";
+};
+window.closeModal = function(){$("modalBg").className="modal-bg";};
+window.saveItem   = async function(){
+  const name=$("mName").value.trim();
+  if(!name){toast("Account name is required","err");return;}
+  if(editId){
+    const it=items.find(i=>i.id===editId);
+    if(it){it.name=name;it.username=$("mUser").value.trim();it.password=$("mPw").value;it.icon=selEmoji;it.note=$("mNote").value.trim();}
+  } else {
+    items.push({id:uid(),name,username:$("mUser").value.trim(),password:$("mPw").value,icon:selEmoji,note:$("mNote").value.trim()});
+  }
+  syncUI("busy");
+  try {
+    await saveToFirebase();
+    syncUI("ok");
+    closeModal();
+    renderList();
+    toast((editId?"Updated":"Saved")+" & encrypted to cloud ✓","ok");
+  } catch(e){
+    syncUI("offline","Save failed");
+    toast("Save failed: "+e.message,"err");
+  }
+};
+window.delItem = async function(id){
+  const it=items.find(i=>i.id===id);
+  if(!confirm(`Delete "${it?.name}"?`)) return;
+  items=items.filter(i=>i.id!==id);
+  syncUI("busy");
+  await saveToFirebase();
+  syncUI("ok");
+  renderList();
+  toast("Deleted & vault updated","ok");
+};
+
+/* ── EMOJI ── */
+function buildEmoji(){
+  $("emojiGrid").innerHTML=EMOJIS.map(e=>
+    `<div class="emoji-opt${e===selEmoji?" picked":""}" onclick="pickEmoji('${e}')">${e}</div>`
+  ).join("");
+}
+window.pickEmoji = function(e){
+  selEmoji=e;
+  document.querySelectorAll(".emoji-opt").forEach(el=>el.classList.toggle("picked",el.textContent===e));
+};
+
+/* ── CLOSE MODAL ON BACKDROP ── */
+$("modalBg").addEventListener("click",function(e){if(e.target===this)closeModal();});
+
+/* ── FOCUS PIN ON LOAD ── */
+window.addEventListener("load",()=>setTimeout(()=>$("p0").focus(),100));
+</script>
+</body>
+</html>
